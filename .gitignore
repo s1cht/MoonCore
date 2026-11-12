@@ -1,0 +1,11 @@
+.vs
+.vscode
+
+**.vcxproj
+**.vcxproj.**
+
+**.sln
+**.slnx
+
+bin/
+bin-int/
