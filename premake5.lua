@@ -1,12 +1,12 @@
 newoption {
-	trigger = "link",
-	value = "type",
-	description = "Choose a linking result",
-	allowed = {
-		{ "shared",  "Shared library (.dll, .so)" },
-		{ "static",  "Static library (.lib, .a)" },
-	},
-	default = "shared"
+    trigger = "link",
+    value = "type",
+    description = "Choose a linking result",
+    allowed = {
+        { "shared",  "Shared library (.dll, .so)" },
+        { "static",  "Static library (.lib, .a)" },
+    },
+    default = "shared"
 }
 
 local localBinLocation = "%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}/%{prj.name}"
@@ -14,6 +14,8 @@ local localBinIntLocation = "%{wks.location}/bin-int/%{cfg.buildcfg}-%{cfg.syste
 
 if (outputBinDirectory ~= nil) then localBinLocation = outputBinDirectory .. "/%{prj.name}" end
 if (outputInterDirectory ~= nil) then localBinIntLocation = outputInterDirectory .. "/%{prj.name}" end
+
+MOON_CORE_OUTPUT_DIR = localBinLocation
 
 project "Core"
     language "C++"
@@ -75,7 +77,6 @@ project "Core"
            "MOON_CORE_LIBRARY_BUILD", 
            "_WINDLL",
         }
-
     filter { "options:link=static" }
         kind "StaticLib"
         staticruntime "on"
