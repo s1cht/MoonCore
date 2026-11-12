@@ -48,11 +48,11 @@ project "Core"
 
     includedirs 
     {
-        "%{wks.location}/Dependencies/spdlog/include",
-        "%{wks.location}/Dependencies/fmt/include",
-        "%{wks.location}/Dependencies/xxHash",
-        "%{wks.location}/Include",
-        "%{wks.location}/Source",
+        "Dependencies/spdlog/include",
+        "Dependencies/fmt/include",
+        "Dependencies/xxHash",
+        "Include",
+        "Source",
     }
 
     links { "xxHash" }
