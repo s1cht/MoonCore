@@ -53,6 +53,8 @@ project "Core"
         "Source",
     }
 
+    defines { "SPDLOG_FMT_EXTERNAL", "SPDLOG_NO_EXCEPTIONS", "SPDLOG_WCHAR_TO_UTF8_SUPPORT" }
+
     links { "xxHash" }
 
     -- System configurations
@@ -102,7 +104,7 @@ project "Core"
             "Dependencies/fmt/include",
             "Include",
         }
-        defines { "SPDLOG_FMT_EXTERNAL", "FMT_HEADER_ONLY" }
+        defines { "FMT_HEADER_ONLY" }
         filter "options:link=static"
             defines { "MOON_CORE_STATIC_LIB" }
     filter {}

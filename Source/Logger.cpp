@@ -4,9 +4,6 @@
 #include "MoonCore/Clock/Time.hpp"
 
 #undef TEXT
-#define SPDLOG_WCHAR_TO_UTF8_SUPPORT
-#define SPDLOG_FMT_EXTERNAL
-#define SPDLOG_NO_EXCEPTIONS
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
