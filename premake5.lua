@@ -49,9 +49,7 @@ project "Core"
     includedirs 
     {
         "Dependencies/spdlog/include",
-        "Dependencies/fmt/include",
         "Dependencies/xxHash",
-        "Include",
         "Source",
     }
 
@@ -80,8 +78,7 @@ project "Core"
     filter { "options:link=static" }
         kind "StaticLib"
         staticruntime "on"
-        defines { "MOON_CORE_STATIC_LIB" }
-        
+
     -- Files configurations
     filter "files:**.cppm"
         compileas "Module"
@@ -97,6 +94,18 @@ project "Core"
         defines  "MC_RELEASE"
         optimize "on"
         runtime  "Release"
+    filter {}
 
+    usage "PUBLIC"
+        includedirs
+        {
+            "Dependencies/fmt/include",
+            "Include",
+        }
+        defines { "SPDLOG_FMT_EXTERNAL", "FMT_HEADER_ONLY" }
+        filter "options:link=static"
+            defines { "MOON_CORE_STATIC_LIB" }
+    filter {}
+    
     group "Dependencies"
         include "Dependencies/xxHash"
