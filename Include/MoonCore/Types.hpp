@@ -349,19 +349,19 @@ namespace MC
 	};
 
 
-    #define SUPPORT_BITWISE_FOR_ENUM_CLASS(Enum)											\
-	constexpr Enum operator|(Enum left, Enum right) noexcept								\
-	{																						\
-		return static_cast<Enum>(Core::ToUnderlying(left) | Core::ToUnderlying(right));		\
-	}																						\
-	constexpr Enum& operator|=(Enum& left, Enum right) noexcept								\
-	{																						\
-		left = left | right;																\
-		return left;																		\
-	}																						\
-	constexpr Enum operator&(Enum left, Enum right) noexcept								\
-	{																						\
-		return static_cast<Enum>(Core::ToUnderlying(left) & Core::ToUnderlying(right));		\
+    #define MOON_SUPPORT_BITWISE_FOR_ENUM_CLASS(Enum)									    \
+	constexpr Enum operator|(Enum left, Enum right) noexcept						    \
+	{																				    \
+		return static_cast<Enum>(::MC::ToUnderlying(left) | MC::ToUnderlying(right));   \
+	}																				    \
+	constexpr Enum& operator|=(Enum& left, Enum right) noexcept						    \
+	{																				    \
+		left = left | right;														    \
+		return left;																    \
+	}																				    \
+	constexpr Enum operator&(Enum left, Enum right) noexcept						    \
+	{																				    \
+		return static_cast<Enum>(::MC::ToUnderlying(left) & ::MC::ToUnderlying(right)); \
 	}
 
 	/*								String reinterpretation							*/
