@@ -1,8 +1,23 @@
 #pragma once
 #include "MoonCore/Core.hpp"
 
+/**
+ * @file HeapShared.hpp
+ * @brief Concepts and interfaces for heap-based priority queue containers.
+ * @ingroup container_adapters
+ */
+
 namespace MC::Concept
 {
+    /**
+     * @concept HeapType
+     * @brief Concept describing requirements for a binary heap container.
+     *
+     * Requires types `ContainerType`, `ValueType`, `RefType`, `ConstRefType`,
+     * noexcept construction from container, and methods `Size()`, `Empty()`, `Top()`, `Insert()`, `Emplace()`, and `Pop()`.
+     *
+     * @tparam T The heap container type being validated.
+     */
     template <class T>
     concept HeapType = requires
     {

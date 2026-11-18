@@ -1,0 +1,134 @@
+# Doxyfile for MoonCore
+# Project: MoonCore - Modern C++23 High-Performance Core & Containers Library
+
+PROJECT_NAME           = "MoonCore"
+PROJECT_NUMBER         = "0.1.0"
+PROJECT_BRIEF          = "Modern C++23 High-Performance Core & Containers Library"
+OUTPUT_DIRECTORY       = docs
+CREATE_SUBDIRS         = NO
+OUTPUT_LANGUAGE        = English
+
+# Build options
+BRIEF_MEMBER_DESC      = YES
+REPEAT_BRIEF           = YES
+ALWAYS_DETAILED_SEC    = NO
+INLINE_INHERITED_MEMB  = NO
+FULL_PATH_NAMES        = YES
+STRIP_FROM_PATH        = Include Source docs
+STRIP_FROM_INC_PATH    = Include/MoonCore Include
+SHORT_NAMES            = NO
+JAVADOC_AUTOBRIEF      = YES
+QT_AUTOBRIEF           = YES
+MULTILINE_CPP_IS_BRIEF = YES
+INHERIT_DOCS           = YES
+SEPARATE_MEMBER_PAGES  = NO
+TAB_SIZE               = 4
+OPTIMIZE_OUTPUT_FOR_C  = NO
+EXTENSION_MAPPING      = hpp=C++ inl=C++
+MARKDOWN_SUPPORT       = YES
+AUTOLINK_SUPPORT       = YES
+SUBGROUPING            = YES
+DISTRIBUTE_GROUP_DOC   = NO
+
+# Extraction options
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_PRIV_VIRTUAL   = NO
+EXTRACT_PACKAGE        = NO
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_LOCAL_METHODS  = NO
+EXTRACT_ANON_NSPACES   = NO
+RESOLVE_UNNAMED_PARAMS = YES
+HIDE_UNDOC_MEMBERS     = NO
+HIDE_UNDOC_CLASSES     = NO
+HIDE_FRIEND_COMPOUNDS  = NO
+HIDE_IN_BODY_DOCS      = NO
+INTERNAL_DOCS          = NO
+CASE_SENSE_NAMES       = YES
+HIDE_SCOPE_NAMES       = NO
+HIDE_COMPOUND_REFERENCE= NO
+SHOW_INCLUDE_FILES     = YES
+SHOW_GROUPED_MEMB_INC  = YES
+FORCE_LOCAL_INCLUDES   = NO
+INLINE_INFO            = YES
+SORT_MEMBER_DOCS       = YES
+SORT_BRIEF_DOCS        = NO
+SORT_MEMBERS_CTORS_1ST = YES
+SORT_GROUP_NAMES       = NO
+SORT_BY_SCOPE_NAME     = NO
+
+# Warning and issues
+QUIET                  = NO
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = NO
+WARN_IF_DOC_ERROR      = YES
+WARN_IF_INCOMPLETE_DOC = YES
+WARN_NO_PARAMDOC       = NO
+WARN_AS_ERROR          = NO
+
+# Input settings
+INPUT                  = docs/mainpage.md docs/groups.dox Include/MoonCore/Containers
+INPUT_ENCODING         = UTF-8
+FILE_PATTERNS          = *.hpp *.h *.inl *.md *.dox
+RECURSIVE              = YES
+EXCLUDE                = 
+EXCLUDE_SYMLINKS       = NO
+USE_MDFILE_AS_MAINPAGE = docs/mainpage.md
+
+# Source browsing
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = YES
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
+REFERENCES_LINK_SOURCE = YES
+SOURCE_TOOLTIPS        = YES
+VERBATIM_HEADERS       = YES
+
+# HTML Output & Styling
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_FILE_EXTENSION    = .html
+HTML_COLORSTYLE        = LIGHT
+HTML_EXTRA_STYLESHEET  = docs/doxygen-awesome-css/doxygen-awesome.css
+HTML_EXTRA_FILES       = docs/doxygen-awesome-css/doxygen-awesome-fragment-copy-button.js docs/doxygen-awesome-css/doxygen-awesome-paragraph-link.js
+GENERATE_TREEVIEW      = YES
+DISABLE_INDEX          = NO
+FULL_SIDEBAR           = NO
+ENUM_VALUES_PER_LINE   = 4
+TREEVIEW_WIDTH         = 280
+SEARCHENGINE           = YES
+SERVER_BASED_SEARCH    = NO
+
+# Formats disabled
+GENERATE_LATEX         = NO
+GENERATE_RTF           = NO
+GENERATE_MAN           = NO
+GENERATE_XML           = NO
+GENERATE_DOCBOOK       = NO
+
+# Preprocessing & Macros
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+SEARCH_INCLUDES        = YES
+INCLUDE_PATH           = Include Include/MoonCore Include/MoonCore/Containers
+PREDEFINED             = MC_API= \
+                         MOON_CORE_LIBRARY_BUILD= \
+                         COMPILER_MSVC= \
+                         PLATFORM_WINDOWS= \
+                         "MOON_CHECK(x)=" \
+                         "MOON_VALIDATE(x)=" \
+                         MOON_NODISCARD= \
+                         MOON_DEPRECATED= \
+                         FORCE_INLINE=inline
+
+# Diagram options (dot disabled by default for maximum portability)
+HAVE_DOT               = NO
+CLASS_GRAPH            = YES
+COLLABORATION_GRAPH    = NO
+GROUP_GRAPHS           = YES
+TEMPLATE_RELATIONS     = YES
+INCLUDE_GRAPH          = YES
+INCLUDED_BY_GRAPH      = YES

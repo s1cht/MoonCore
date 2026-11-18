@@ -9,3 +9,9 @@
 
 bin/
 bin-int/
+
+# Documentation build output
+docs/html/
+docs/latex/
+docs/xml/
+docs/out/

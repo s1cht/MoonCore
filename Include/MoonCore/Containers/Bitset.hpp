@@ -4,37 +4,87 @@
 #include "MoonCore/Containers/String/StringShared.hpp"
 #include "MoonCore/Utility/Algorithm.hpp"
 
+/**
+ * @file Bitset.hpp
+ * @brief Fixed-size packed boolean bitset container.
+ * @ingroup bit_containers
+ */
+
 namespace MC
 {
+    /**
+     * @class Bitset
+     * @brief Compact fixed-size sequence of N bits packed into machine words.
+     *
+     * `Bitset<BitCount>` provides an efficient representation of fixed-size bit sequences,
+     * packing 8 bits into each byte (using machine word `uptr` chunks). It provides full bitwise
+     * arithmetic operators (`&`, `|`, `^`, `~`, `<<`, `>>`), individual bit query and mutation
+     * via reference proxy (`Bitset::Reference`), and set inspection operations (`All()`, `Any()`,
+     * `None()`, `Count()`).
+     *
+     * @tparam BitCount The compile-time number of bits in the bitset.
+     *
+     * @code
+     * MC::Bitset<16> mask(0b1010'0101);
+     * mask.Set(2);
+     * mask[3] = true;
+     * bool isSet = mask.Test(2);
+     * usize totalOnBits = mask.Count();
+     * @endcode
+     */
     template<usize BitCount>
     class Bitset
     {
     public:
+        /**
+         * @struct Reference
+         * @brief Proxy object representing a single modifiable bit inside a `Bitset`.
+         */
         struct Reference
         {
+            /**
+             * @brief Constructs a reference proxy to a specific bit in a word.
+             * @param word Reference to machine word containing the bit.
+             * @param bit Bit index within the word.
+             */
             constexpr Reference(uptr& word, u32 bit) : Word(word), Bit(bit) {}
             
+            /**
+             * @brief Assigns a boolean state to the referenced bit.
+             * @param state Boolean value.
+             * @return Reference to this proxy.
+             */
             Reference& operator=(bool state) noexcept
             {
                 Word = (Word & ~(static_cast<uptr>(1) << Bit)) | (static_cast<uptr>(state) << Bit);
                 return *this;
             }
 
+            /**
+             * @brief Converts the referenced bit to a boolean value.
+             * @return True if bit is 1, false if 0.
+             */
             operator bool() const noexcept
             {
                 return (Word & static_cast<uptr>(1) << Bit) != 0;
             }
 
-            uptr& Word;
-            u32 Bit;
+            uptr& Word; ///< Reference to containing machine word.
+            u32 Bit;    ///< Bit position within word.
         };
 
     public:
-        static constexpr usize BitsPerWord = sizeof(uptr) * 8;
-        static constexpr usize WordCount = BitCount == 0 ? 0 : (BitCount + BitsPerWord - 1) / BitsPerWord;
+        static constexpr usize BitsPerWord = sizeof(uptr) * 8;                                 ///< Bits in single machine word.
+        static constexpr usize WordCount = BitCount == 0 ? 0 : (BitCount + BitsPerWord - 1) / BitsPerWord; ///< Total words required.
 
     public:
+        /** @brief Default constructor. Initializes all bits to zero. */
         constexpr Bitset() noexcept = default;
+
+        /**
+         * @brief Constructs a bitset from an integer value.
+         * @param value 64-bit integer representing initial bit pattern.
+         */
         constexpr Bitset(u64 value) noexcept
         {
             if constexpr (WordCount >= 1)
@@ -42,6 +92,15 @@ namespace MC
             if constexpr (WordCount > 1)
                 m_Words[1] = static_cast<uptr>(value >> BitsPerWord);
         }
+
+        /**
+         * @brief Constructs a bitset from a string of character digits.
+         * @tparam CharacterType Character type satisfying `Concept::Character`.
+         * @param str Null-terminated character string.
+         * @param size String length, or `~0ull` to auto-detect.
+         * @param zero Character representing 0 (default `'0'`).
+         * @param one Character representing 1 (default `'1'`).
+         */
         template <Concept::Character CharacterType>
         constexpr Bitset(const CharacterType* str, usize size = ~0ull,
             CharacterType zero = CharacterType('0'), CharacterType one = CharacterType('1'))
@@ -58,21 +117,38 @@ namespace MC
         }
 
     public:
+        /** @brief Returns compile-time total number of bits. */
         static constexpr usize Size() noexcept { return BitCount; }
 
     public:
+        /**
+         * @brief Accesses bit at @p bitIndex returning a modifiable proxy reference.
+         * @param bitIndex 0-based bit index.
+         * @return Modifiable proxy `Reference`.
+         */
         constexpr Reference operator[](usize bitIndex) noexcept
         {
             MOON_CHECK(bitIndex < BitCount, "bitIndex >= BitCount");
             return Reference{ m_Words[GetWord(bitIndex)], static_cast<u32>(bitIndex % BitsPerWord) };
         }
 
+        /**
+         * @brief Accesses bit at @p bitIndex (const overload).
+         * @param bitIndex 0-based bit index.
+         * @return Boolean value of bit.
+         */
         constexpr bool operator[](usize bitIndex) const noexcept
         {
             MOON_CHECK(bitIndex < BitCount, "bitIndex >= BitCount");
             return Get(GetWord(bitIndex), static_cast<u32>(bitIndex % BitsPerWord));
         }
 
+        /**
+         * @brief Equality comparison between two bitsets.
+         * @tparam OtherBitCount Bit count of other bitset.
+         * @param other Bitset to compare.
+         * @return True if bit patterns are identical.
+         */
         template<usize OtherBitCount>
         constexpr bool operator==(const Bitset<OtherBitCount>& other) const noexcept
         {
@@ -82,6 +158,7 @@ namespace MC
             return true;
         }
 
+        /** @brief Bitwise AND assignment operator. */
         constexpr Bitset& operator&=(const Bitset& other) noexcept
         {
             for (usize i = 0; i < WordCount; i++)
@@ -89,6 +166,7 @@ namespace MC
             return *this;
         }
 
+        /** @brief Bitwise OR assignment operator. */
         constexpr Bitset& operator|=(const Bitset& other) noexcept
         {
             for (usize i = 0; i < WordCount; i++)
@@ -96,6 +174,7 @@ namespace MC
             return *this;
         }
 
+        /** @brief Bitwise XOR assignment operator. */
         constexpr Bitset& operator^=(const Bitset& other) noexcept
         {
             for (usize i = 0; i < WordCount; i++)
@@ -103,8 +182,10 @@ namespace MC
             return *this;
         }
 
+        /** @brief Bitwise NOT operator. Inverts all bits. */
         constexpr Bitset operator~() const noexcept;
 
+        /** @brief Bitwise right shift assignment operator. */
         constexpr Bitset& operator>>=(usize position) noexcept
         {
             const auto wordshift = static_cast<uptr>(position / BitsPerWord);
@@ -121,12 +202,14 @@ namespace MC
             return *this;
         }
 
+        /** @brief Bitwise right shift operator. */
         constexpr Bitset& operator>>(usize position) noexcept
         {
             Bitset result = *this;
             return result >>= position;
         }
 
+        /** @brief Bitwise left shift assignment operator. */
         constexpr Bitset& operator<<=(usize position) noexcept
         {
             const auto wordshift = static_cast<uptr>(position / BitsPerWord);
@@ -145,6 +228,7 @@ namespace MC
             return *this;
         }
 
+        /** @brief Bitwise left shift operator. */
         constexpr Bitset operator<<(usize position) noexcept
         {
             Bitset result = *this;
@@ -152,12 +236,21 @@ namespace MC
         }
 
     public:
+        /**
+         * @brief Tests value of bit at @p bitIndex.
+         * @param bitIndex 0-based bit index.
+         * @return True if set, false if clear.
+         */
         constexpr bool Test(usize bitIndex) const noexcept
         {
             MOON_CHECK(bitIndex < BitCount, "bitIndex >= BitCount");
             return Get(GetWord(bitIndex), static_cast<u32>(bitIndex % BitsPerWord));
         }
 
+        /**
+         * @brief Checks if all bits are set to true.
+         * @return True if every bit is 1.
+         */
         constexpr bool All() const noexcept
         {
             for (usize currentWord = 0; currentWord < WordCount; ++currentWord)
@@ -172,6 +265,10 @@ namespace MC
             return true;
         }
 
+        /**
+         * @brief Checks if at least one bit is set to true.
+         * @return True if any bit is 1.
+         */
         constexpr bool Any() const noexcept
         {
             for (usize currentWord = 0; currentWord < WordCount; ++currentWord)
@@ -180,6 +277,10 @@ namespace MC
             return false;
         }
 
+        /**
+         * @brief Checks if no bits are set to true.
+         * @return True if every bit is 0.
+         */
         constexpr bool None() const noexcept
         {
             for (usize currentWord = 0; currentWord < WordCount; ++currentWord)
@@ -188,6 +289,10 @@ namespace MC
             return true;
         }
 
+        /**
+         * @brief Counts number of bits set to true (popcount).
+         * @return Number of 1-bits.
+         */
         constexpr usize Count() const noexcept
         {
             usize result = 0;
@@ -200,6 +305,10 @@ namespace MC
             return result;
         }
 
+        /**
+         * @brief Sets all bits to true.
+         * @return Reference to this bitset.
+         */
         constexpr Bitset& Set() noexcept
         {
             if constexpr (WordCount == 0) return *this;
@@ -208,6 +317,12 @@ namespace MC
             return *this;
         }
 
+        /**
+         * @brief Sets or clears bit at @p bitIndex.
+         * @param bitIndex 0-based bit index.
+         * @param state New boolean state (default true).
+         * @return Reference to this bitset.
+         */
         constexpr Bitset& Set(usize bitIndex, bool state = true) noexcept
         {
             MOON_CHECK(bitIndex < BitCount, "bitIndex >= BitCount");
@@ -215,12 +330,21 @@ namespace MC
             return *this;
         }
 
+        /**
+         * @brief Clears all bits to false (0).
+         * @return Reference to this bitset.
+         */
         constexpr Bitset& Reset() noexcept
         {
             for (usize i = 0; i < WordCount; ++i) m_Words[i] = 0;
             return *this;
         }
 
+        /**
+         * @brief Clears bit at @p bitIndex to false.
+         * @param bitIndex 0-based bit index.
+         * @return Reference to this bitset.
+         */
         constexpr Bitset& Reset(usize bitIndex) noexcept
         {
             MOON_CHECK(bitIndex < BitCount, "bitIndex >= BitCount");
@@ -228,6 +352,10 @@ namespace MC
             return *this;
         }
 
+        /**
+         * @brief Toggles (inverts) all bits.
+         * @return Reference to this bitset.
+         */
         constexpr Bitset& Flip() noexcept
         {
             if constexpr (WordCount == 0) return *this;
@@ -236,6 +364,11 @@ namespace MC
             return *this;
         }
 
+        /**
+         * @brief Toggles (inverts) bit at @p bitIndex.
+         * @param bitIndex 0-based bit index.
+         * @return Reference to this bitset.
+         */
         constexpr Bitset& Flip(usize bitIndex) noexcept
         {
             MOON_CHECK(bitIndex < BitCount, "bitIndex >= BitCount");
@@ -277,7 +410,7 @@ namespace MC
         }
 
     private:
-        uptr m_Words[WordCount == 0 ? 1 : WordCount]{};
+        uptr m_Words[WordCount == 0 ? 1 : WordCount]{}; ///< Storage words array.
     };
 
     template <usize BitCount>
@@ -289,6 +422,7 @@ namespace MC
     }
 }
 
+/** @brief Bitwise binary AND between two bitsets. */
 template<usize BitCount>
 MC::Bitset<BitCount> operator&(const MC::Bitset<BitCount>& left,
                                          const MC::Bitset<BitCount>& right) noexcept
@@ -297,6 +431,7 @@ MC::Bitset<BitCount> operator&(const MC::Bitset<BitCount>& left,
     return result &= right;
 }
 
+/** @brief Bitwise binary OR between two bitsets. */
 template<usize BitCount>
 MC::Bitset<BitCount> operator|(const MC::Bitset<BitCount>& left,
                                          const MC::Bitset<BitCount>& right) noexcept
@@ -305,6 +440,7 @@ MC::Bitset<BitCount> operator|(const MC::Bitset<BitCount>& left,
     return result |= right;
 }
 
+/** @brief Bitwise binary XOR between two bitsets. */
 template<usize BitCount>
 MC::Bitset<BitCount> operator^(const MC::Bitset<BitCount>& left,
                                          const MC::Bitset<BitCount>& right) noexcept

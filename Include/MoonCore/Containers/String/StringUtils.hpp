@@ -4,6 +4,12 @@
 #include "MoonCore/Containers/String/StringView.hpp"
 #include "MoonCore/Utility/Pair.hpp"
 
+/**
+ * @file StringUtils.hpp
+ * @brief String conversion and hexadecimal manipulation utilities.
+ * @ingroup string_containers
+ */
+
 namespace MC::Utility
 {
     namespace Details
@@ -19,6 +25,12 @@ namespace MC::Utility
         }
     }
 
+    /**
+     * @brief Converts an unsigned integral value to its hexadecimal string representation.
+     * @tparam T Unsigned integral type satisfying `Concept::UnsignedIntegral`.
+     * @param number Integer value to format.
+     * @return Formatted hexadecimal `MC::String`.
+     */
     template<Concept::UnsignedIntegral T>
     static MC::String ConvertNumberToHex(T number) noexcept
     {
@@ -36,6 +48,12 @@ namespace MC::Utility
         return result;
     }
 
+    /**
+     * @brief Converts a signed integral value to its hexadecimal string representation.
+     * @tparam T Signed integral type satisfying `Concept::SignedIntegral`.
+     * @param number Integer value to format.
+     * @return Formatted hexadecimal `MC::String`.
+     */
     template<Concept::SignedIntegral T>
     MC::String ConvertNumberToHex(T number) noexcept
     {
@@ -43,6 +61,11 @@ namespace MC::Utility
         return ConvertNumberToHex<Unsigned>(static_cast<Unsigned>(number));
     }
 
+    /**
+     * @brief Parses a hexadecimal string view into a 64-bit unsigned integer.
+     * @param hex String view containing hexadecimal digits (e.g. "1A2F").
+     * @return Decoded 64-bit integer, or `~0ull` on error.
+     */
     static constexpr u64 ConvertHexToNumber(const MC::StringView& hex) noexcept
     {
         u64 result = 0;
