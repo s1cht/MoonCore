@@ -1,0 +1,25 @@
+/**
+ * @defgroup containers Containers
+ * @brief High-performance C++23 containers library.
+ * @{
+ *
+ *   @defgroup seq_containers Sequence Containers
+ *   @brief Contiguous and block-based sequential containers (Array, FixedArray, StackArray, Deque).
+ *
+ *   @defgroup assoc_containers Associative Containers
+ *   @brief Self-balancing AVL tree ordered associative containers (Map, Set, Multimap, Multiset).
+ *
+ *   @defgroup unord_containers Unordered Containers
+ *   @brief Chained hash table containers (UnorderedMap, UnorderedSet).
+ *
+ *   @defgroup container_adapters Container Adapters
+ *   @brief LIFO, FIFO, and priority queue container adapters (Stack, Queue, PriorityQueue, BinaryHeap).
+ *
+ *   @defgroup bit_containers Bitwise Containers
+ *   @brief Packed fixed-size bit array structures (Bitset).
+ *
+ *   @defgroup string_containers String Containers
+ *   @brief Memory-efficient dynamic strings, string views, and Unicode decoding utilities (String, WideString, StringView).
+ *
+ * @}
+ */

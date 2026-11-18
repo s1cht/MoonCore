@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "MoonCore/Core.hpp"
 #include "MoonCore/Memory/Memory.hpp"
@@ -7,8 +7,33 @@
 #include "MoonCore/Containers/Bitset.hpp"
 #include "MoonCore/Containers/String/StringShared.hpp"
 
+/**
+ * @file String.hpp
+ * @brief Dynamic string implementation with UTF-8 and UTF-16 support.
+ * @ingroup string_containers
+ */
+
 namespace MC
 {
+	/**
+	 * @class StringImpl
+	 * @brief Dynamically sized character string with custom allocator and Unicode support.
+	 *
+	 * `StringImpl<CharacterType, Allocator>` provides high-performance string management
+	 * supporting both UTF-8 (`char8`) and UTF-16 (`wchar`). Includes Small String Optimization (SSO),
+	 * Unicode codepoint decoding, dynamic reallocation, numerical parsing, and formatting.
+	 *
+	 * @tparam CharacterType Character element type (`char8` or `wchar`).
+	 * @tparam Allocator Memory allocator type satisfying `Concept::HeapAllocatorType`.
+	 *
+	 * @code
+	 * MC::String s = "Hello, MoonCore!";
+	 * s += " Welcome.";
+	 * for (char32 cp : s.Codepoints()) {
+	 *     // Process codepoint
+	 * }
+	 * @endcode
+	 */
 	template<Concept::Character CharacterType, Concept::HeapAllocatorType Allocator>
 	class StringImpl
 	{
@@ -1167,8 +1192,13 @@ namespace MC
 		}
 	};
 
+	/// @brief Dynamic UTF-8 string type.
 	typedef StringImpl<char8> UTF8String;
+
+	/// @brief Dynamic UTF-16 wide string type.
 	typedef StringImpl<wchar> WideString;
+
+	/// @brief Default dynamic string type (UTF-8).
 	typedef UTF8String String;	
 
 	inline String operator+(const char7* str1, const String& str2) noexcept { return String::ToString(str1) += str2.String(); }
@@ -1178,6 +1208,11 @@ namespace MC
 	inline WideString operator+(const wchar* str1, const WideString& str2) noexcept { return WideString::ToString(str1) += str2.String(); }
 	inline WideString operator+(wchar character, const WideString& str2) noexcept { return WideString::ToString(character) += str2.String(); }
 
+	/**
+	 * @brief Converts a WideString (UTF-16) to an ASCII/UTF-8 String.
+	 * @param str Source WideString.
+	 * @return Converted String.
+	 */
 	inline String WideStringToString(const WideString& str) noexcept
 	{
 		usize num;
@@ -1196,6 +1231,11 @@ namespace MC
 		return result;
 	}
 
+	/**
+	 * @brief Converts a String (UTF-8) to a WideString (UTF-16).
+	 * @param str Source String.
+	 * @return Converted WideString.
+	 */
 	inline WideString StringToWideString(const String& str) noexcept
 	{
 		usize num;

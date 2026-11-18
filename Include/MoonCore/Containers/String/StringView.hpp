@@ -2,8 +2,30 @@
 #include "MoonCore/Containers/String/StringShared.hpp"
 #include "MoonCore/Containers/Bitset.hpp"
 
+/**
+ * @file StringView.hpp
+ * @brief Non-owning read-only string view with UTF decoding and substring operations.
+ * @ingroup string_containers
+ */
+
 namespace MC
 {
+	/**
+	 * @class StringViewImpl
+	 * @brief Non-owning, constant-time lightweight view over a contiguous character sequence.
+	 *
+	 * `StringViewImpl<CharacterType>` provides a view into an existing character buffer without
+	 * allocating memory or copying. It supports UTF-8 and UTF-16 decoding, codepoint iteration,
+	 * slicing, searching, and trimming.
+	 *
+	 * @tparam CharacterType Character element type (`char8` or `wchar`).
+	 *
+	 * @code
+	 * MC::StringView sv = "Hello, World!";
+	 * MC::StringView sub = sv.Substring(0, 5); // "Hello"
+	 * usize pos = sv.Find("World");             // 7
+	 * @endcode
+	 */
 	template<Concept::Character CharacterType>
 	class StringViewImpl
 	{
@@ -585,6 +607,9 @@ namespace MC
 		}
 	};
 
-	using StringView     = StringViewImpl<char8>; // UTF-8
-	using WideStringView = StringViewImpl<wchar>; // UTF-16
+	/// @brief Non-owning UTF-8 string view.
+	using StringView     = StringViewImpl<char8>;
+
+	/// @brief Non-owning UTF-16 / wide string view.
+	using WideStringView = StringViewImpl<wchar>;
 }

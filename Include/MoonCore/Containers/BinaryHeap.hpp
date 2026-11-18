@@ -5,8 +5,24 @@
 #include "MoonCore/Utility/Algorithm.hpp"
 #include "MoonCore/Containers/Details/HeapShared.hpp"
 
+/**
+ * @file BinaryHeap.hpp
+ * @brief Binary heap priority queue container.
+ * @ingroup container_adapters
+ */
+
 namespace MC::Concept
 {
+    /**
+     * @concept ContainerEligibleForBinaryHeap
+     * @brief Concept describing container requirements to serve as the backing store for `MC::BinaryHeap`.
+     *
+     * Requires value, pointer, reference, and iterator types, plus size queries (`Size()`, `Empty()`),
+     * element access (`Front()`, `Back()`), sequential iterators (`Begin()`, `End()`), and modification
+     * operations (`PushBack()`, `EmplaceBack()`, `PopBack()`, `Clear()`).
+     *
+     * @tparam Container Backing container type.
+     */
     template <class Container>
     concept ContainerEligibleForBinaryHeap = IsNothrowDefaultConstructible<Container>
     && requires
@@ -45,58 +61,137 @@ namespace MC::Concept
 
 namespace MC
 {
+    /**
+     * @class BinaryHeap
+     * @brief High-performance binary heap container (priority queue).
+     *
+     * `BinaryHeap<T, Compare, Container>` provides logarithmic time insertion (O(log N))
+     * and deletion (O(log N)) of the highest (or lowest, depending on @p Compare) priority element,
+     * with constant time (O(1)) retrieval of the top element.
+     *
+     * By default, uses `Callables::Less<T>` producing a max-heap (largest element at the root),
+     * backed by an `MC::Array<T>`.
+     *
+     * @tparam T The element type stored in the heap.
+     * @tparam Compare Strict weak ordering functor. Defaults to `Callables::Less<T>`.
+     * @tparam Container Underlying random-access container. Defaults to `MC::Array<T>`.
+     *
+     * @code
+     * MC::BinaryHeap<int> heap;
+     * heap.Insert(30);
+     * heap.Insert(10);
+     * heap.Insert(50);
+     *
+     * int top = heap.Top(); // 50
+     * heap.Pop();          // Removes 50; new top is 30
+     * @endcode
+     */
     template<typename T, class Compare = Callables::Less<T>, class Container = Array<T>>
         requires Concept::ContainerEligibleForBinaryHeap<Container>
     class BinaryHeap
     {
     public:
-        using ContainerType = Container;
-        using ValueType = typename ContainerType::ValueType;
-        using RefType = typename ContainerType::RefType;
-        using ConstRefType = typename ContainerType::ConstRefType;
+        using ContainerType = Container;                               ///< Underlying container type.
+        using ValueType = typename ContainerType::ValueType;           ///< Stored element type.
+        using RefType = typename ContainerType::RefType;               ///< Reference to element.
+        using ConstRefType = typename ContainerType::ConstRefType;     ///< Reference to const element.
 
     public:
+        /** @brief Default constructor. Constructs an empty heap. */
         BinaryHeap() noexcept = default;
+
+        /**
+         * @brief Constructs a heap from an existing container by copying and heapifying (O(N)).
+         * @param container Source container to copy from.
+         */
         explicit BinaryHeap(const ContainerType& container) noexcept : m_Container(container)
         {
             BuildHeap();
         }
+
+        /**
+         * @brief Constructs a heap from an existing container by moving and heapifying (O(N)).
+         * @param container Source container to move from.
+         */
         explicit BinaryHeap(ContainerType&& container) noexcept : m_Container(Move(container))
         {
             BuildHeap();
         }
+
+        /** @brief Copy constructor. */
         BinaryHeap(const BinaryHeap&) noexcept = default;
+        /** @brief Move constructor. */
         BinaryHeap(BinaryHeap&&) noexcept = default;
+        /** @brief Destructor. */
         ~BinaryHeap() noexcept = default;
 
     public:
+        /** @brief Copy assignment operator. */
         BinaryHeap& operator=(const BinaryHeap&) noexcept = default;
+        /** @brief Move assignment operator. */
         BinaryHeap& operator=(BinaryHeap&&) noexcept = default;
 
     public:
+        /** @brief Returns number of elements in heap. */
         usize Size() const noexcept { return m_Container.Size(); }
+        /** @brief Checks if heap has no elements. */
         bool Empty() const noexcept { return m_Container.Empty(); }
 
+        /**
+         * @brief Accesses the top (highest-priority) element.
+         * @return Mutable reference to top element.
+         * @note O(1) time complexity.
+         */
         RefType Top() noexcept { return m_Container.Front(); }
+
+        /**
+         * @brief Accesses the top (highest-priority) element (const overload).
+         * @return Const reference to top element.
+         * @note O(1) time complexity.
+         */
         ConstRefType Top() const noexcept { return m_Container.Front(); }
 
     public:
+        /**
+         * @brief Inserts a copy of @p value into the heap and restores heap order.
+         * @param value Element to insert.
+         * @note O(log N) time complexity.
+         */
         void Insert(const ValueType& value) noexcept
         {
             m_Container.PushBack(value);
             static_cast<void>(InsertHeap());
         }
+
+        /**
+         * @brief Inserts @p value by moving into the heap and restores heap order.
+         * @param value Element to insert.
+         * @note O(log N) time complexity.
+         */
         void Insert(ValueType&& value) noexcept
         {
             m_Container.PushBack(Move(value));
             static_cast<void>(InsertHeap());
         }
+
+        /**
+         * @brief Constructs an element in-place and restores heap order.
+         * @tparam ArgTypes Argument types for element constructor.
+         * @param args Forwarded arguments.
+         * @return Reference to the inserted element.
+         * @note O(log N) time complexity.
+         */
         template<typename... ArgTypes> 
         RefType Emplace(ArgTypes&&... args) noexcept
         {
             static_cast<void>(m_Container.EmplaceBack(Forward<ArgTypes>(args)...));
             return m_Container[InsertHeap()];
         }
+
+        /**
+         * @brief Removes the top (highest-priority) element from the heap and restores heap order.
+         * @note O(log N) time complexity.
+         */
         void Pop() noexcept
         {
             PopHeap();
@@ -146,7 +241,7 @@ namespace MC
         }
 
     private:
-        ContainerType m_Container;
-        Compare m_ComparisonFunctor;
+        ContainerType m_Container;     ///< Underlying sequence container.
+        Compare m_ComparisonFunctor;   ///< Strict weak ordering comparison functor.
     };
 }

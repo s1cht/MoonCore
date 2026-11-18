@@ -4,14 +4,31 @@
 #include "MoonCore/Containers/String/StringUtils.hpp"
 #include "MoonCore/Memory/Hasher.hpp"
 
+/**
+ * @file String.hpp
+ * @brief Umbrella header for string containers, string views, character conversions, and hashers.
+ * @ingroup string_containers
+ */
+
 namespace MC
 {
+	/**
+	 * @brief Converts a UTF-8 String pointer to an ANSI const char7* pointer.
+	 * @param str Source string.
+	 * @return Const pointer to char7 buffer.
+	 */
 	constexpr const char7* AsChar7(const String& str) noexcept
 	{
 		if (IsConstantEvaluated())
 			return "";
 	    return AS_CHAR7(str.String());
 	}
+
+	/**
+	 * @brief Converts a UTF-8 StringView to an ANSI const char7* pointer.
+	 * @param str Source string view.
+	 * @return Const pointer to char7 buffer.
+	 */
 	constexpr const char7* AsChar7(const StringView& str) noexcept
 	{
 		if (IsConstantEvaluated())
@@ -19,14 +36,30 @@ namespace MC
 	    return AS_CHAR7(str.String());
 	}
 
+	/**
+	 * @brief Accesses raw const char8* buffer of a String.
+	 * @param str Source string.
+	 * @return Pointer to UTF-8 character buffer.
+	 */
 	constexpr const char8* AsChar8(const String& str) noexcept
 	{
 		if (IsConstantEvaluated())
 			return TEXT("");
 		return str.String();
 	}
+
+	/**
+	 * @brief Accesses raw const char8* buffer of a StringView.
+	 * @param str Source string view.
+	 * @return Pointer to UTF-8 character buffer.
+	 */
 	constexpr const char8* AsChar8(const StringView& str) noexcept { return str.String(); }
 
+	/**
+	 * @brief Converts a WideStringView (UTF-16) to an ASCII/UTF-8 String.
+	 * @param str Source wide string view.
+	 * @return Converted String.
+	 */
 	inline String WideStringViewToString(const WideStringView& str) noexcept
 	{
 		usize num;
@@ -45,6 +78,11 @@ namespace MC
 		return result;
 	}
 
+	/**
+	 * @brief Converts a StringView (UTF-8) to a WideString (UTF-16).
+	 * @param str Source string view.
+	 * @return Converted WideString.
+	 */
 	inline WideString StringViewToWideString(const StringView& str) noexcept
 	{
 		usize num;
@@ -64,6 +102,7 @@ namespace MC
 	}
 	namespace Memory
 	{
+		/** @brief xxHash64 specialization for `MC::StringViewImpl`. */
 		template<Concept::Character CharacterType>
 		struct Hasher<StringViewImpl<CharacterType>>
 		{
@@ -77,6 +116,7 @@ namespace MC
 			}
 		};
 
+		/** @brief xxHash64 specialization for `MC::StringImpl`. */
 		template<Concept::Character CharacterType, Concept::HeapAllocatorType AllocatorType>
 		struct Hasher<StringImpl<CharacterType, AllocatorType>>
 		{
@@ -90,8 +130,9 @@ namespace MC
 			}
 		};
 
+		/** @brief Compile-time FNV-1a hasher for `MC::StringViewImpl`. */
 		template<Concept::Character CharacterType>
-		struct Memory::ConstexprHasher<StringViewImpl<CharacterType>>
+		struct ConstexprHasher<StringViewImpl<CharacterType>>
 		{
 			constexpr static usize Hash(const StringViewImpl<CharacterType>& str, usize, usize tableSize) noexcept
 			{
