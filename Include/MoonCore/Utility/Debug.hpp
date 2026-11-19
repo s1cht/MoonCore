@@ -84,11 +84,11 @@ namespace MC::Utility::Debugging
         }                                                \
     } while(0)
 
-#define MOON_TERMINATE_IF_NOT_MSG(expression, message)            \
-    do {                                                        \
-        if (!(expression)) [[unlikely]] {                       \
+#define MOON_TERMINATE_IF_NOT_MSG(expression, message)    \
+    do {                                                  \
+        if (!(expression)) [[unlikely]] {                 \
             ::MC::Utility::Debugging::Terminate(message); \
-        }                                                       \
+        }                                                 \
     } while(0)
 
 // Sanity check for containers (and other Core objects) checks, does nothing when Distribute build is active
@@ -102,22 +102,11 @@ namespace MC::Utility::Debugging
 // 1: On runtime - MC::Utility::Debugging::Terminate() is called 
 // 2: On constant evaluated - Invokes undefined behavior
 #define MOON_VALIDATE(expression, message)
-// Validates expression and formats log message on failure
-// When expression is false, result depends on the context
-// 1: On runtime - MC::Utility::Debugging::Terminate() is called 
-// 2: On constant evaluated - Invokes undefined behavior
-#define MOON_RUNTIME_VALIDATE(expression, formatExpression, ...)
-
-#if defined(MC_DEBUG)
-
-#else
-#endif
 
 #if defined(MC_DEBUG) || defined(MC_RELEASE)
 #   undef MOON_ASSERT
 #   undef MOON_CHECK
 #   undef MOON_VALIDATE
-#   undef MOON_RUNTIME_VALIDATE
 #   define MOON_ASSERT(expression, ...)	                   \
 		do {								               \
 			if (!(expression)) [[unlikely]] {              \
@@ -127,14 +116,11 @@ namespace MC::Utility::Debugging
 		} while (0)
 #   define MOON_CHECK(expression, message) MOON_TERMINATE_IF_NOT_MSG(expression, message)  
 #   define MOON_VALIDATE(expression, message) MOON_TERMINATE_IF_NOT_MSG(expression, message)
-#   define MOON_RUNTIME_VALIDATE(expression, formatExpression, ...) MOON_TERMINATE_IF_NOT_MSG(expression, formatExpression)
 #else
 #   undef MOON_ASSERT
 #   undef MOON_CHECK
 #   undef MOON_VALIDATE
-#   undef MOON_RUNTIME_VALIDATE
 #   define MOON_ASSERT(expression, type, ...)
 #   define MOON_CHECK(expression, message)             
 #   define MOON_VALIDATE(expression, message)                       MOON_TERMINATE_IF_NOT(expression)  
-#   define MOON_RUNTIME_VALIDATE(expression, formatExpression, ...) MOON_TERMINATE_IF_NOT(expression)
 #endif

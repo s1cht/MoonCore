@@ -63,7 +63,7 @@ namespace MC::Windows::Async
 
         DWORD threadId;
         m_Thread = CreateThread(nullptr, specification.StackSize, ThreadProc, data, CREATE_SUSPENDED, &threadId);
-        MOON_RUNTIME_VALIDATE(m_Thread, "Thread creation failed!");
+        MOON_VALIDATE(m_Thread, "Thread creation failed!");
         data->ThreadId = static_cast<u64>(threadId);
 
         WideString threadName = StringToWideString(specification.ThreadName.String());
