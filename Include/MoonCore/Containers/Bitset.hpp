@@ -61,6 +61,16 @@ namespace MC
             }
 
             /**
+             * @brief Assigns the value of another referenced bit (`a[i] = b[j]`).
+             * @param other Proxy to read the value from.
+             * @return Reference to this proxy.
+             */
+            Reference& operator=(const Reference& other) noexcept
+            {
+                return *this = static_cast<bool>(other);
+            }
+
+            /**
              * @brief Converts the referenced bit to a boolean value.
              * @return True if bit is 1, false if 0.
              */
