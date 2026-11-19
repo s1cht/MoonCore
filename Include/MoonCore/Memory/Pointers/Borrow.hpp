@@ -43,8 +43,6 @@ namespace MC::Memory
 
         constexpr ~Borrow() noexcept { m_Ptr == nullptr; }
 
-        Borrow(const Borrow&) = delete;
-
     public:
         template <typename U>
             requires Concept::ConvertibleTo<U*, Pointer>
