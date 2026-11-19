@@ -2,6 +2,7 @@
 #include <intrin.h>
 #include "MoonCore/Types.hpp"
 #include "MoonCore/Macros.hpp"
+#include "MoonCore/Platform/CurrentPlatform.hpp"
 
 namespace MC
 {
