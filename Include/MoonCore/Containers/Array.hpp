@@ -54,8 +54,8 @@ namespace MC
 
 		using AllocatorType = Allocator;               ///< Allocator policy type.
 
-		using Iterator				= ArrayIterator<Array, false>;                ///< Random access iterator.
-		using ConstIterator			= ArrayIterator<Array, true>;                 ///< Constant random access iterator.
+		using Iterator				= Details::ArrayIterator<Array, false>;        ///< Random access iterator.
+		using ConstIterator			= Details::ArrayIterator<Array, true>;         ///< Constant random access iterator.
 		using ReverseIterator		= MC::Iterator::ReverseIterator<Iterator>;     ///< Reverse random access iterator.
 		using ConstReverseIterator	= MC::Iterator::ReverseIterator<ConstIterator>;///< Constant reverse random access iterator.
 

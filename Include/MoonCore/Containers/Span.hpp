@@ -130,8 +130,8 @@ namespace MC
 		using RefType = ValueType&;                                    ///< Reference to element.
 		using ConstRefType = const ValueType&;                          ///< Reference to const element.
 
-		using Iterator = ArrayIterator<SpanImpl, false>;          ///< Random-access iterator.
-		using ConstIterator = ArrayIterator<SpanImpl, true>;      ///< Const random-access iterator.
+		using Iterator = Details::ArrayIterator<SpanImpl, false>;        ///< Random-access iterator.
+		using ConstIterator = Details::ArrayIterator<SpanImpl, true>;    ///< Const random-access iterator.
 		using ReverseIterator = MC::Iterator::ReverseIterator<Iterator>;///< Reverse iterator.
 		using ConstReverseIterator = MC::Iterator::ReverseIterator<ConstIterator>; ///< Const reverse iterator.
 
@@ -397,5 +397,5 @@ namespace MC
 	 * @tparam Extent Extent as an integer or scoped enum with `Count`.
 	 */
 	template<typename T, auto Extent = DynamicExtent>
-	using Span = SpanImpl<T, ToArraySize<Extent>()>;
+	using Span = SpanImpl<T, Details::ToArraySize<Extent>()>;
 }

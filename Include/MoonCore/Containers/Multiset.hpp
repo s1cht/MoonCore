@@ -21,7 +21,7 @@ namespace MC
      * @endcode
      */
     template <Concept::TreeType Key,
-        Concept::HeapAllocatorType Allocator = Memory::HeapAllocator<TreeBranch<Key>>,
+        Concept::HeapAllocatorType Allocator = Memory::HeapAllocator<Details::TreeBranch<Key>>,
         Concept::CompareFunctor Compare = Callables::Less<Key>>
     using Multiset = AVLTree<Key, void, Allocator, Compare, true>;
 }

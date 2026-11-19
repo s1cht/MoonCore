@@ -46,8 +46,8 @@ namespace MC
 		using RefType = ValueType&;                                    ///< Reference to element.
 		using ConstRefType = const ValueType&;                          ///< Reference to const element.
 
-		using Iterator = ArrayIterator<FixedArrayImpl, false>;          ///< Random-access iterator.
-		using ConstIterator = ArrayIterator<FixedArrayImpl, true>;      ///< Const random-access iterator.
+		using Iterator = Details::ArrayIterator<FixedArrayImpl, false>;     ///< Random-access iterator.
+		using ConstIterator = Details::ArrayIterator<FixedArrayImpl, true>; ///< Const random-access iterator.
 		using ReverseIterator = MC::Iterator::ReverseIterator<Iterator>;///< Reverse iterator.
 		using ConstReverseIterator = MC::Iterator::ReverseIterator<ConstIterator>; ///< Const reverse iterator.
 

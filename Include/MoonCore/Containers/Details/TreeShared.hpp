@@ -22,193 +22,196 @@ namespace MC::Concept
 
 namespace MC
 {
-    /**
-     * @struct TreeTraits
-     * @brief Type traits differentiating Map storage (`Pair<const Key, Value>`) from Set storage (`Key`).
-     * @tparam Key Key type.
-     * @tparam Value Mapped value type.
-     */
-    template<typename Key, typename Value>
-    struct TreeTraits
+    namespace Details
     {
-        using StoredType = Utility::Pair<const Key, Value>; ///< Internal node stored type.
-        using ValueType = StoredType;                       ///< Exposed element value type.
-        static constexpr bool IsSet = false;               ///< False for key-value maps.
+        /**
+         * @struct TreeTraits
+         * @brief Type traits differentiating Map storage (`Pair<const Key, Value>`) from Set storage (`Key`).
+         * @tparam Key Key type.
+         * @tparam Value Mapped value type.
+         */
+        template<typename Key, typename Value>
+        struct TreeTraits
+        {
+            using StoredType = Utility::Pair<const Key, Value>; ///< Internal node stored type.
+            using ValueType = StoredType;                       ///< Exposed element value type.
+            static constexpr bool IsSet = false;               ///< False for key-value maps.
 
-        /** @brief Extracts const reference to key from stored pair. */
-        static const Key& KeyOf(const StoredType& value) noexcept { return value.Key; }
-    };
-
-    /**
-     * @struct TreeTraits<Key, void>
-     * @brief Specialization for sets where only the key is stored.
-     * @tparam Key Stored set key.
-     */
-    template<typename Key>
-    struct TreeTraits<Key, void>
-    {
-        using StoredType = Key;                             ///< Stored element type.
-        using ValueType = const Key;                        ///< Exposed element value type (immutable).
-        static constexpr bool IsSet = true;                ///< True for sets.
-
-        /** @brief Extracts const reference to key. */
-        static const Key& KeyOf(const StoredType& value) noexcept { return value; }
-    };
-
-    /**
-     * @struct TreeBranch
-     * @brief Single node in the self-balancing AVL binary search tree.
-     * @tparam ValueType Type of payload stored in the branch.
-     */
-    template <typename ValueType>
-    struct TreeBranch
-    {
-        ValueType Value;             ///< Node value payload.
-        u32 Height;                  ///< Subtree height for AVL balancing.
-        TreeBranch* Parent;          ///< Pointer to parent node.
-        TreeBranch* LeftPart;        ///< Pointer to left child subtree.
-        TreeBranch* RightPart;       ///< Pointer to right child subtree.
+            /** @brief Extracts const reference to key from stored pair. */
+            static const Key& KeyOf(const StoredType& value) noexcept { return value.Key; }
+        };
 
         /**
-         * @brief In-order successor traversal.
-         * @return Pointer to next higher node, or nullptr if this is the maximum.
+         * @struct TreeTraits<Key, void>
+         * @brief Specialization for sets where only the key is stored.
+         * @tparam Key Stored set key.
          */
-        TreeBranch* Successor() noexcept
+        template<typename Key>
+        struct TreeTraits<Key, void>
         {
-            TreeBranch* next = this;
-            if (RightPart)
-            {
-                next = RightPart;
-                while (next->LeftPart) next = next->LeftPart;
-                return next;
-            }
-            while (next->Parent && next->Parent->RightPart == next) next = next->Parent;
-            return next->Parent;
-        }
+            using StoredType = Key;                             ///< Stored element type.
+            using ValueType = const Key;                        ///< Exposed element value type (immutable).
+            static constexpr bool IsSet = true;                ///< True for sets.
+
+            /** @brief Extracts const reference to key. */
+            static const Key& KeyOf(const StoredType& value) noexcept { return value; }
+        };
 
         /**
-         * @brief In-order successor traversal (const overload).
-         * @return Const pointer to next higher node, or nullptr if maximum.
+         * @struct TreeBranch
+         * @brief Single node in the self-balancing AVL binary search tree.
+         * @tparam ValueType Type of payload stored in the branch.
          */
-        const TreeBranch* Successor() const noexcept
+        template <typename ValueType>
+        struct TreeBranch
         {
-            const TreeBranch* next = this;
-            if (RightPart)
+            ValueType Value;             ///< Node value payload.
+            u32 Height;                  ///< Subtree height for AVL balancing.
+            TreeBranch* Parent;          ///< Pointer to parent node.
+            TreeBranch* LeftPart;        ///< Pointer to left child subtree.
+            TreeBranch* RightPart;       ///< Pointer to right child subtree.
+
+            /**
+             * @brief In-order successor traversal.
+             * @return Pointer to next higher node, or nullptr if this is the maximum.
+             */
+            TreeBranch* Successor() noexcept
             {
-                next = RightPart;
-                while (next->LeftPart) next = next->LeftPart;
-                return next;
+                TreeBranch* next = this;
+                if (RightPart)
+                {
+                    next = RightPart;
+                    while (next->LeftPart) next = next->LeftPart;
+                    return next;
+                }
+                while (next->Parent && next->Parent->RightPart == next) next = next->Parent;
+                return next->Parent;
             }
-            while (next->Parent && next->Parent->RightPart == next) next = next->Parent;
-            return next->Parent;
-        }
+
+            /**
+             * @brief In-order successor traversal (const overload).
+             * @return Const pointer to next higher node, or nullptr if maximum.
+             */
+            const TreeBranch* Successor() const noexcept
+            {
+                const TreeBranch* next = this;
+                if (RightPart)
+                {
+                    next = RightPart;
+                    while (next->LeftPart) next = next->LeftPart;
+                    return next;
+                }
+                while (next->Parent && next->Parent->RightPart == next) next = next->Parent;
+                return next->Parent;
+            }
+
+            /**
+             * @brief In-order predecessor traversal.
+             * @return Pointer to previous lower node, or nullptr if minimum.
+             */
+            TreeBranch* Precessor() noexcept
+            {
+                TreeBranch* last = this;
+                if (LeftPart)
+                {
+                    last = LeftPart;
+                    while (last->RightPart) last = last->RightPart;
+                    return last;
+                }
+                while (last->Parent && last->Parent->LeftPart == last) last = last->Parent;
+                return last->Parent;
+            }
+
+            /**
+             * @brief In-order predecessor traversal (const overload).
+             * @return Const pointer to previous lower node, or nullptr if minimum.
+             */
+            const TreeBranch* Precessor() const noexcept
+            {
+                const TreeBranch* last = this;
+                if (LeftPart)
+                {
+                    last = LeftPart;
+                    while (last->RightPart) last = last->RightPart;
+                    return last;
+                }
+                while (last->Parent && last->Parent->LeftPart == last) last = last->Parent;
+                return last->Parent;
+            }
+        };
 
         /**
-         * @brief In-order predecessor traversal.
-         * @return Pointer to previous lower node, or nullptr if minimum.
+         * @class TreeIterator
+         * @brief Bidirectional iterator for traversing AVL tree nodes in sorted order.
+         * @tparam Container Owning tree container type.
+         * @tparam IsConst Whether this iterator provides const access.
          */
-        TreeBranch* Precessor() noexcept
+        template<typename Container, bool IsConst = false>
+        class TreeIterator
         {
-            TreeBranch* last = this;
-            if (LeftPart)
-            {
-                last = LeftPart;
-                while (last->RightPart) last = last->RightPart;
-                return last;
-            }
-            while (last->Parent && last->Parent->LeftPart == last) last = last->Parent;
-            return last->Parent;
-        }
+        public:
+            using KeyType = typename Container::KeyType;                   ///< Key type.
+            using ValueType = typename Container::ValueType;               ///< Value payload type.
+            using DiffType = iptr;                                         ///< Distance difference type.
+            using PtrType = Conditional<IsConst, const ValueType*, ValueType*>; ///< Pointer to value.
+            using RefType = Conditional<IsConst, const ValueType&, ValueType&>; ///< Reference to value.
+            using Category = Iterator::Tags::Bidirectional;                ///< Bidirectional iterator tag.
+            using BranchPtrType = typename Container::BranchType*;         ///< Pointer to tree node.
 
-        /**
-         * @brief In-order predecessor traversal (const overload).
-         * @return Const pointer to previous lower node, or nullptr if minimum.
-         */
-        const TreeBranch* Precessor() const noexcept
-        {
-            const TreeBranch* last = this;
-            if (LeftPart)
-            {
-                last = LeftPart;
-                while (last->RightPart) last = last->RightPart;
-                return last;
-            }
-            while (last->Parent && last->Parent->LeftPart == last) last = last->Parent;
-            return last->Parent;
-        }
-    };
+        public:
+            /** @brief Default constructor. Constructs a null iterator (equivalent to `End()`). */
+            constexpr TreeIterator() noexcept : m_Ptr(nullptr) {}
+            /** @brief Constructs an iterator pointing to a specific tree branch node. */
+            constexpr TreeIterator(BranchPtrType ptr) noexcept : m_Ptr(ptr) {}
 
-    /**
-     * @class TreeIterator
-     * @brief Bidirectional iterator for traversing AVL tree nodes in sorted order.
-     * @tparam Container Owning tree container type.
-     * @tparam IsConst Whether this iterator provides const access.
-     */
-    template<typename Container, bool IsConst = false>
-    class TreeIterator
-    {
-    public:
-        using KeyType = typename Container::KeyType;                   ///< Key type.
-        using ValueType = typename Container::ValueType;               ///< Value payload type.
-        using DiffType = iptr;                                         ///< Distance difference type.
-        using PtrType = Conditional<IsConst, const ValueType*, ValueType*>; ///< Pointer to value.
-        using RefType = Conditional<IsConst, const ValueType&, ValueType&>; ///< Reference to value.
-        using Category = Iterator::Tags::Bidirectional;                ///< Bidirectional iterator tag.
-        using BranchPtrType = typename Container::BranchType*;         ///< Pointer to tree node.
+            /** @brief Copy constructor. */
+            constexpr TreeIterator(const TreeIterator& other) noexcept { m_Ptr = other.m_Ptr; }
+            /** @brief Move constructor. */
+            constexpr TreeIterator(TreeIterator&& other) noexcept { m_Ptr = other.m_Ptr; }
 
-    public:
-        /** @brief Default constructor. Constructs a null iterator (equivalent to `End()`). */
-        constexpr TreeIterator() noexcept : m_Ptr(nullptr) {}
-        /** @brief Constructs an iterator pointing to a specific tree branch node. */
-        constexpr TreeIterator(BranchPtrType ptr) noexcept : m_Ptr(ptr) {}
+        public:
+            /** @brief Copy assignment operator. */
+            constexpr TreeIterator& operator=(const TreeIterator& other) noexcept { m_Ptr = other.m_Ptr; return *this; }
+            /** @brief Move assignment operator. */
+            constexpr TreeIterator& operator=(TreeIterator&& other) noexcept { m_Ptr = Move(other.m_Ptr); return *this; }
 
-        /** @brief Copy constructor. */
-        constexpr TreeIterator(const TreeIterator& other) noexcept { m_Ptr = other.m_Ptr; }
-        /** @brief Move constructor. */
-        constexpr TreeIterator(TreeIterator&& other) noexcept { m_Ptr = other.m_Ptr; }
+        public:
+            /** @brief Advances iterator by @p index steps using in-order successor traversal. */
+            constexpr TreeIterator& operator+=(usize index) { for (usize i = 0; i < index; i++) m_Ptr = m_Ptr->Successor(); return *this; }
+            /** @brief Decrements iterator by @p index steps using in-order predecessor traversal. */
+            constexpr TreeIterator& operator-=(usize index) { for (usize i = 0; i < index; i++) m_Ptr = m_Ptr->Precessor(); return *this; }
 
-    public:
-        /** @brief Copy assignment operator. */
-        constexpr TreeIterator& operator=(const TreeIterator& other) noexcept { m_Ptr = other.m_Ptr; return *this; }
-        /** @brief Move assignment operator. */
-        constexpr TreeIterator& operator=(TreeIterator&& other) noexcept { m_Ptr = Move(other.m_Ptr); return *this; }
+            /** @brief Returns an iterator advanced by @p index positions. */
+            constexpr TreeIterator operator+(usize index) const { return TreeIterator(m_Ptr) += index; }
+            /** @brief Returns an iterator moved back by @p index positions. */
+            constexpr TreeIterator operator-(usize index) const { return TreeIterator(m_Ptr) -= index; }
 
-    public:
-        /** @brief Advances iterator by @p index steps using in-order successor traversal. */
-        constexpr TreeIterator& operator+=(usize index) { for (usize i = 0; i < index; i++) m_Ptr = m_Ptr->Successor(); return *this; }
-        /** @brief Decrements iterator by @p index steps using in-order predecessor traversal. */
-        constexpr TreeIterator& operator-=(usize index) { for (usize i = 0; i < index; i++) m_Ptr = m_Ptr->Precessor(); return *this; }
+            /** @brief Pre-increment operator. Advances to in-order successor. */
+            constexpr TreeIterator& operator++() { m_Ptr = m_Ptr->Successor(); return *this; }
+            /** @brief Post-increment operator. */
+            constexpr TreeIterator operator++(int) { TreeIterator temp = *this; m_Ptr = m_Ptr->Successor(); return temp; }
 
-        /** @brief Returns an iterator advanced by @p index positions. */
-        constexpr TreeIterator operator+(usize index) const { return TreeIterator(m_Ptr) += index; }
-        /** @brief Returns an iterator moved back by @p index positions. */
-        constexpr TreeIterator operator-(usize index) const { return TreeIterator(m_Ptr) -= index; }
+            /** @brief Pre-decrement operator. Advances to in-order predecessor. */
+            constexpr TreeIterator& operator--() { m_Ptr = m_Ptr->Precessor(); return *this; }
+            /** @brief Post-decrement operator. */
+            constexpr TreeIterator operator--(int) { TreeIterator temp = *this; m_Ptr = m_Ptr->Precessor(); return temp; }
 
-        /** @brief Pre-increment operator. Advances to in-order successor. */
-        constexpr TreeIterator& operator++() { m_Ptr = m_Ptr->Successor(); return *this; }
-        /** @brief Post-increment operator. */
-        constexpr TreeIterator operator++(int) { TreeIterator temp = *this; m_Ptr = m_Ptr->Successor(); return temp; }
+            /** @brief Equality comparison. */
+            constexpr bool operator==(const TreeIterator& it) const noexcept { return m_Ptr == it.m_Ptr; }
+            /** @brief Inequality comparison. */
+            constexpr bool operator!=(const TreeIterator& it) const noexcept { return m_Ptr != it.m_Ptr; }
 
-        /** @brief Pre-decrement operator. Advances to in-order predecessor. */
-        constexpr TreeIterator& operator--() { m_Ptr = m_Ptr->Precessor(); return *this; }
-        /** @brief Post-decrement operator. */
-        constexpr TreeIterator operator--(int) { TreeIterator temp = *this; m_Ptr = m_Ptr->Precessor(); return temp; }
+            /** @brief Subscript access relative to current position. */
+            constexpr RefType operator[](usize index) const { return (*this + index).m_Ptr->Value; }
+            /** @brief Member access operator. */
+            constexpr PtrType operator->() const { return &m_Ptr->Value; }
+            /** @brief Dereference operator. */
+            constexpr RefType operator*() const { return m_Ptr->Value; }
 
-        /** @brief Equality comparison. */
-        constexpr bool operator==(const TreeIterator& it) const noexcept { return m_Ptr == it.m_Ptr; }
-        /** @brief Inequality comparison. */
-        constexpr bool operator!=(const TreeIterator& it) const noexcept { return m_Ptr != it.m_Ptr; }
-
-        /** @brief Subscript access relative to current position. */
-        constexpr RefType operator[](usize index) const { return (*this + index).m_Ptr->Value; }
-        /** @brief Member access operator. */
-        constexpr PtrType operator->() const { return &m_Ptr->Value; }
-        /** @brief Dereference operator. */
-        constexpr RefType operator*() const { return m_Ptr->Value; }
-
-    public:
-        BranchPtrType m_Ptr; ///< Pointer to current tree node.
-    };
+        public:
+            BranchPtrType m_Ptr; ///< Pointer to current tree node.
+        };
+    }
 
     /**
      * @class AVLTree
@@ -233,13 +236,13 @@ namespace MC
     class AVLTree
     {
     public:
-        using TraitsType = TreeTraits<Key, Value>;                      ///< Internal trait mapping.
+        using TraitsType = Details::TreeTraits<Key, Value>;             ///< Internal trait mapping.
 
         using KeyType = Key;                                           ///< Key type.
         using MappedType = Value;                                       ///< Mapped value type.
         using StoredType = typename TraitsType::StoredType;            ///< Internal payload type stored in node.
         using ValueType = typename TraitsType::ValueType;              ///< Exposed element value type.
-        using BranchType = TreeBranch<StoredType>;                     ///< Node branch type.
+        using BranchType = Details::TreeBranch<StoredType>;            ///< Node branch type.
         using PtrType = ValueType*;                                    ///< Pointer to element.
         using ConstPtrType = const ValueType*;                          ///< Pointer to const element.
         using RefType = ValueType&;                                    ///< Reference to element.
@@ -252,8 +255,8 @@ namespace MC
         using AllocatorType = Allocator;                               ///< Node allocator policy.
         using CompareFunctor = Compare;                                 ///< Comparator functor type.
 
-        using Iterator = TreeIterator<AVLTree, false>;                  ///< Bidirectional iterator.
-        using ConstIterator = TreeIterator<AVLTree, true>;              ///< Const bidirectional iterator.
+        using Iterator = Details::TreeIterator<AVLTree, false>;         ///< Bidirectional iterator.
+        using ConstIterator = Details::TreeIterator<AVLTree, true>;     ///< Const bidirectional iterator.
         using ReverseIterator = MC::Iterator::ReverseIterator<Iterator>;///< Reverse iterator.
         using ConstReverseIterator = MC::Iterator::ReverseIterator<ConstIterator>; ///< Const reverse iterator.
 

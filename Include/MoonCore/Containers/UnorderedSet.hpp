@@ -14,87 +14,87 @@
 
 namespace MC
 {
-	/**
-	 * @class USetIterator
-	 * @brief Forward iterator for traversing elements in an `MC::UnorderedSet`.
-	 *
-	 * @tparam Container Owning unordered set container type.
-	 * @tparam IsConst Whether this iterator provides const access to values.
-	 */
-	template <typename Container, bool IsConst = false>
-	class USetIterator
+	namespace Details
 	{
-	public:
-		using KeyType = Container::KeyType;
-		using ValueType = Container::ValueType;
-		using DiffType = iptr;
-		using PtrType = Container::NodeType*;
-		using ValuePtrType = Conditional<IsConst, const ValueType*, ValueType*>;
-		using RefType = Conditional<IsConst, const ValueType&, ValueType&>;
-		using Category = Iterator::Tags::Forward;
-
-	public:
-		using key_type = KeyType;
-		using value_type = ValueType;
-		using difference_type = DiffType;
-		using pointer = PtrType;
-		using reference = RefType;
-		using iterator_category = Category;
-
-	public:
-		constexpr USetIterator() noexcept
-			: m_Ptr(nullptr), m_Buckets(nullptr), m_BucketCount(0), m_BucketIndex(0)
-		{}
-
-		constexpr USetIterator(PtrType ptr, PtrType* buckets, usize bucketCount, usize bucketIndex)
-			: m_Ptr(ptr), m_Buckets(buckets), m_BucketCount(bucketCount), m_BucketIndex(bucketIndex)
-		{}
-
-	public:
-		constexpr USetIterator& operator++() noexcept
+		/**
+		 * @class USetIterator
+		 * @brief Forward iterator for traversing elements in an `MC::UnorderedSet`.
+		 *
+		 * @tparam Container Owning unordered set container type.
+		 * @tparam IsConst Whether this iterator provides const access to values.
+		 */
+		template <typename Container, bool IsConst = false>
+		class USetIterator
 		{
-			if (m_Ptr && m_Ptr->NextNode) m_Ptr = m_Ptr->NextNode;
-			else
+		public:
+			using KeyType = Container::KeyType;
+			using ValueType = Container::ValueType;
+			using DiffType = iptr;
+			using PtrType = Container::NodeType*;
+			using ValuePtrType = Conditional<IsConst, const ValueType*, ValueType*>;
+			using RefType = Conditional<IsConst, const ValueType&, ValueType&>;
+			using Category = Iterator::Tags::Forward;
+
+		public:
+			using key_type = KeyType;
+			using value_type = ValueType;
+			using difference_type = DiffType;
+			using pointer = PtrType;
+			using reference = RefType;
+			using iterator_category = Category;
+
+		public:
+			constexpr USetIterator() noexcept
+				: m_Ptr(nullptr), m_Buckets(nullptr), m_BucketCount(0), m_BucketIndex(0)
+			{}
+
+			constexpr USetIterator(PtrType ptr, PtrType* buckets, usize bucketCount, usize bucketIndex)
+				: m_Ptr(ptr), m_Buckets(buckets), m_BucketCount(bucketCount), m_BucketIndex(bucketIndex)
+			{}
+
+		public:
+			constexpr USetIterator& operator++() noexcept
 			{
-				m_Ptr = nullptr;
-				for (usize i = m_BucketIndex + 1; i < m_BucketCount; ++i)
+				if (m_Ptr && m_Ptr->NextNode) m_Ptr = m_Ptr->NextNode;
+				else
 				{
-					if (m_Buckets[i])
+					m_Ptr = nullptr;
+					for (usize i = m_BucketIndex + 1; i < m_BucketCount; ++i)
 					{
-						m_Ptr = m_Buckets[i];
-						m_BucketIndex = i;
-						break;
+						if (m_Buckets[i])
+						{
+							m_Ptr = m_Buckets[i];
+							m_BucketIndex = i;
+							break;
+						}
 					}
 				}
+				return *this;
 			}
-			return *this;
-		}
 
-		constexpr USetIterator operator++(int) noexcept
-		{
-			USetIterator temp = *this;
-			++(*this);
-			return temp;
-		}
+			constexpr USetIterator operator++(int) noexcept
+			{
+				USetIterator temp = *this;
+				++(*this);
+				return temp;
+			}
 
-		constexpr bool operator==(const USetIterator& it) const noexcept { return m_Ptr == it.m_Ptr; }
-		constexpr bool operator!=(const USetIterator& it) const noexcept { return m_Ptr != it.m_Ptr; }
+			constexpr bool operator==(const USetIterator& it) const noexcept { return m_Ptr == it.m_Ptr; }
+			constexpr bool operator!=(const USetIterator& it) const noexcept { return m_Ptr != it.m_Ptr; }
 
-		constexpr ValuePtrType operator->() const noexcept { return &m_Ptr->Value; }
-		constexpr RefType operator*() const noexcept { return m_Ptr->Value; }
+			constexpr ValuePtrType operator->() const noexcept { return &m_Ptr->Value; }
+			constexpr RefType operator*() const noexcept { return m_Ptr->Value; }
 
-	private:
-		PtrType m_Ptr;
-		PtrType* m_Buckets;
-		usize m_BucketCount;
-		usize m_BucketIndex;
+		private:
+			PtrType m_Ptr;
+			PtrType* m_Buckets;
+			usize m_BucketCount;
+			usize m_BucketIndex;
 
-	private:
-		friend Container;
-	};
+		private:
+			friend Container;
+		};
 
-	namespace Helper
-	{
 		template <typename ValueT>
 		struct SetNode
 		{
@@ -134,7 +134,6 @@ namespace MC
 			using BucketAllocator = Allocator<NodeType*>;
 		};
 	}
-
 	namespace Concept
 	{
 		template<typename Value, template<typename> class Hasher, template<typename> class Allocator>
@@ -142,9 +141,9 @@ namespace MC
 			IsDefaultConstructible<Value> &&
 			IsNothrowCopyConstructible<Value> &&
 			IsNothrowMoveConstructible<Value> &&
-			Concept::HasherType<typename Core::Helper::UnorderedSetTraits<Value, Hasher, Allocator>::HasherType>&&
-			Concept::HeapAllocatorType<typename Core::Helper::UnorderedSetTraits<Value, Hasher, Allocator>::NodeAllocator>&&
-			Concept::HeapAllocatorType<typename Core::Helper::UnorderedSetTraits<Value, Hasher, Allocator>::BucketAllocator>;
+			Concept::HasherType<typename Details::UnorderedSetTraits<Value, Hasher, Allocator>::HasherType>&&
+			Concept::HeapAllocatorType<typename Details::UnorderedSetTraits<Value, Hasher, Allocator>::NodeAllocator>&&
+			Concept::HeapAllocatorType<typename Details::UnorderedSetTraits<Value, Hasher, Allocator>::BucketAllocator>;
 	}
 
 	/**
@@ -173,7 +172,7 @@ namespace MC
 		requires Concept::TemplateArgumentsEligibleForUnorderedSet<Value, Hasher, Allocator>
     class UnorderedSet
 	{
-		using Traits = Helper::UnorderedSetTraits<Value, Hasher, Allocator>;
+		using Traits = Details::UnorderedSetTraits<Value, Hasher, Allocator>;
 
 	public:
 		using KeyType	   = Traits::KeyType;
@@ -191,8 +190,8 @@ namespace MC
 		using BucketAllocator = Traits::BucketAllocator;
 
 	public:
-		using Iterator	    = USetIterator<UnorderedSet, false>;
-		using ConstIterator = USetIterator<UnorderedSet, true>;
+		using Iterator	    = Details::USetIterator<UnorderedSet, false>;
+		using ConstIterator = Details::USetIterator<UnorderedSet, true>;
 
 	public:
 		static constexpr usize REHASH_MULTIPLIER = 2;
@@ -575,7 +574,7 @@ namespace MC
 	template< template<typename> class Hasher, template<typename> class Allocator>
 	class UnorderedSet<MC::String, Hasher, Allocator>
 	{
-		using Traits = Helper::UnorderedSetTraits<MC::String, Hasher, Allocator>;
+		using Traits = Details::UnorderedSetTraits<MC::String, Hasher, Allocator>;
 
 	public:
 		using KeyType		= Traits::KeyType;
@@ -593,8 +592,8 @@ namespace MC
 		using BucketAllocator	= Traits::BucketAllocator;
 
 	public:
-		using Iterator		= USetIterator<UnorderedSet, false>;
-		using ConstIterator = USetIterator<UnorderedSet, true>;
+		using Iterator		= Details::USetIterator<UnorderedSet, false>;
+		using ConstIterator = Details::USetIterator<UnorderedSet, true>;
 
 	public:
 		static constexpr usize REHASH_MULTIPLIER = 2;

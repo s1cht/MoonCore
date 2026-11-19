@@ -52,8 +52,8 @@ namespace MC
 		using RefType = ValueType&;                                    ///< Reference to element.
 		using ConstRefType = const ValueType&;                          ///< Reference to const element.
 
-		using Iterator = ArrayIterator<StackArrayImpl, false>;          ///< Random-access iterator.
-		using ConstIterator = ArrayIterator<StackArrayImpl, true>;      ///< Const random-access iterator.
+		using Iterator = Details::ArrayIterator<StackArrayImpl, false>;     ///< Random-access iterator.
+		using ConstIterator = Details::ArrayIterator<StackArrayImpl, true>; ///< Const random-access iterator.
 		using ReverseIterator = MC::Iterator::ReverseIterator<Iterator>;///< Reverse random-access iterator.
 		using ConstReverseIterator = MC::Iterator::ReverseIterator<ConstIterator>; ///< Const reverse iterator.
 
@@ -840,5 +840,5 @@ namespace MC
 	 * @tparam T Stored element type.
 	 * @tparam ArraySize Maximum capacity as an integer or scoped enum with `Count`.
 	 */
-	template<typename T, auto ArraySize> using StackArray = StackArrayImpl<T, ToArraySize<ArraySize>()>;
+	template<typename T, auto ArraySize> using StackArray = StackArrayImpl<T, Details::ToArraySize<ArraySize>()>;
 }

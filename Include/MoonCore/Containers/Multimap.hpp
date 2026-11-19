@@ -29,7 +29,7 @@ namespace MC
      * @endcode
      */
     template <Concept::TreeType Key, Concept::TreeType Value,
-        Concept::HeapAllocatorType Allocator = Memory::HeapAllocator<TreeBranch<Utility::Pair<const Key, Value>>>,
+        Concept::HeapAllocatorType Allocator = Memory::HeapAllocator<Details::TreeBranch<Utility::Pair<const Key, Value>>>,
         Concept::CompareFunctor Compare = Callables::Less<Key>>
     using Multimap = AVLTree<Key, Value, Allocator, Compare, true>;
 }

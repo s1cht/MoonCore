@@ -14,103 +14,103 @@
 
 namespace MC
 {
-	/**
-	 * @class UMapIterator
-	 * @brief Forward iterator for traversing key-value pairs in an `MC::UnorderedMap`.
-	 *
-	 * Iterates over non-empty hash buckets and follows bucket node chains.
-	 *
-	 * @tparam Container Owning unordered map container type.
-	 * @tparam IsConst Whether this iterator provides const access to values.
-	 */
-	template <typename Container, bool IsConst = false>
-	class UMapIterator
+	namespace Details
 	{
-	public:
-		using KeyType		= typename Container::KeyType;       ///< Key type.
-		using ValueType		= typename Container::ValueType;     ///< Value pair type.
-		using DiffType		= iptr;                             ///< Difference type.
-		using PtrType		= typename Container::NodeType*;    ///< Pointer to node.
-		using ValuePtrType	= Conditional<IsConst, const ValueType*, ValueType*>; ///< Pointer to value.
-		using RefType		= Conditional<IsConst, const ValueType&, ValueType&>; ///< Reference to value.
-		using Category		= Iterator::Tags::Forward;          ///< Forward iterator tag.
-
-	public:
-		using key_type = KeyType;
-		using value_type = ValueType;
-		using difference_type = DiffType;
-		using pointer = PtrType;
-		using reference = RefType;
-		using iterator_category = Category;
-
-	public:
-		/** @brief Default constructor. Constructs a null iterator. */
-		constexpr UMapIterator() noexcept
-		    : m_Ptr(nullptr), m_Buckets(nullptr), m_BucketCount(0), m_BucketIndex(0)
-		{}
-
 		/**
-		 * @brief Constructs an iterator targeting a specific node and bucket index.
-		 * @param ptr Pointer to current node.
-		 * @param buckets Array of bucket head pointers.
-		 * @param bucketCount Total number of buckets in table.
-		 * @param bucketIndex Current bucket index.
+		 * @class UMapIterator
+		 * @brief Forward iterator for traversing key-value pairs in an `MC::UnorderedMap`.
+		 *
+		 * Iterates over non-empty hash buckets and follows bucket node chains.
+		 *
+		 * @tparam Container Owning unordered map container type.
+		 * @tparam IsConst Whether this iterator provides const access to values.
 		 */
-		constexpr UMapIterator(PtrType ptr, PtrType* buckets, usize bucketCount, usize bucketIndex)
-			: m_Ptr(ptr), m_Buckets(buckets), m_BucketCount(bucketCount), m_BucketIndex(bucketIndex)
-		{}
-
-	public:
-		/** @brief Pre-increment operator. Advances to next element in chain or next non-empty bucket. */
-		constexpr UMapIterator& operator++() noexcept
+		template <typename Container, bool IsConst = false>
+		class UMapIterator
 		{
-			if (m_Ptr && m_Ptr->NextNode) m_Ptr = m_Ptr->NextNode;
-			else
+		public:
+			using KeyType = typename Container::KeyType;       ///< Key type.
+			using ValueType = typename Container::ValueType;     ///< Value pair type.
+			using DiffType = iptr;                             ///< Difference type.
+			using PtrType = typename Container::NodeType*;    ///< Pointer to node.
+			using ValuePtrType = Conditional<IsConst, const ValueType*, ValueType*>; ///< Pointer to value.
+			using RefType = Conditional<IsConst, const ValueType&, ValueType&>; ///< Reference to value.
+			using Category = Iterator::Tags::Forward;          ///< Forward iterator tag.
+
+		public:
+			using key_type = KeyType;
+			using value_type = ValueType;
+			using difference_type = DiffType;
+			using pointer = PtrType;
+			using reference = RefType;
+			using iterator_category = Category;
+
+		public:
+			/** @brief Default constructor. Constructs a null iterator. */
+			constexpr UMapIterator() noexcept
+				: m_Ptr(nullptr), m_Buckets(nullptr), m_BucketCount(0), m_BucketIndex(0)
+			{}
+
+			/**
+			 * @brief Constructs an iterator targeting a specific node and bucket index.
+			 * @param ptr Pointer to current node.
+			 * @param buckets Array of bucket head pointers.
+			 * @param bucketCount Total number of buckets in table.
+			 * @param bucketIndex Current bucket index.
+			 */
+			constexpr UMapIterator(PtrType ptr, PtrType* buckets, usize bucketCount, usize bucketIndex)
+				: m_Ptr(ptr), m_Buckets(buckets), m_BucketCount(bucketCount), m_BucketIndex(bucketIndex)
+			{}
+
+		public:
+			/** @brief Pre-increment operator. Advances to next element in chain or next non-empty bucket. */
+			constexpr UMapIterator& operator++() noexcept
 			{
-				m_Ptr = nullptr;
-				for (usize i = m_BucketIndex + 1; i < m_BucketCount; ++i)
+				if (m_Ptr && m_Ptr->NextNode) m_Ptr = m_Ptr->NextNode;
+				else
 				{
-					if (m_Buckets[i])
+					m_Ptr = nullptr;
+					for (usize i = m_BucketIndex + 1; i < m_BucketCount; ++i)
 					{
-						m_Ptr = m_Buckets[i];
-						m_BucketIndex = i;
-						break;
+						if (m_Buckets[i])
+						{
+							m_Ptr = m_Buckets[i];
+							m_BucketIndex = i;
+							break;
+						}
 					}
 				}
+				return *this;
 			}
-			return *this;
-		}
 
-		/** @brief Post-increment operator. */
-		constexpr UMapIterator operator++(int) noexcept
-		{
-			UMapIterator temp = *this;
-			++(*this);
-			return temp;
-		}
+			/** @brief Post-increment operator. */
+			constexpr UMapIterator operator++(int) noexcept
+			{
+				UMapIterator temp = *this;
+				++(*this);
+				return temp;
+			}
 
-		/** @brief Equality comparison. */
-		constexpr bool operator==(const UMapIterator& it) const noexcept { return m_Ptr == it.m_Ptr; }
-		/** @brief Inequality comparison. */
-		constexpr bool operator!=(const UMapIterator& it) const noexcept { return m_Ptr != it.m_Ptr; }
+			/** @brief Equality comparison. */
+			constexpr bool operator==(const UMapIterator& it) const noexcept { return m_Ptr == it.m_Ptr; }
+			/** @brief Inequality comparison. */
+			constexpr bool operator!=(const UMapIterator& it) const noexcept { return m_Ptr != it.m_Ptr; }
 
-		/** @brief Member access operator. */
-		constexpr ValuePtrType operator->() const noexcept { return &m_Ptr->Pair; }
-		/** @brief Dereference operator. */
-		constexpr RefType operator*() const noexcept { return m_Ptr->Pair; }
+			/** @brief Member access operator. */
+			constexpr ValuePtrType operator->() const noexcept { return &m_Ptr->Pair; }
+			/** @brief Dereference operator. */
+			constexpr RefType operator*() const noexcept { return m_Ptr->Pair; }
 
-	private:
-		PtrType m_Ptr;
-		PtrType* m_Buckets;
-		usize m_BucketCount;
-		usize m_BucketIndex;
+		private:
+			PtrType m_Ptr;
+			PtrType* m_Buckets;
+			usize m_BucketCount;
+			usize m_BucketIndex;
 
-	private:
-		friend Container;
-	};
+		private:
+			friend Container;
+		};
 
-	namespace Helper
-	{
 		/**
 		 * @struct MapNode
 		 * @brief Singly linked bucket node for `MC::UnorderedMap`.
@@ -148,25 +148,24 @@ namespace MC
 		template<typename Key, typename Value,
 			template<typename> class Hasher = Memory::Hasher,
 			template<typename> class Allocator = Memory::HeapAllocator>
-	    struct UnorderedMapTraits
-	    {
+		struct UnorderedMapTraits
+		{
 		public:
-			using KeyType		= Key;
-			using MappedType	= Value;
-			using ValueType		= MC::Utility::Pair<const KeyType, MappedType>;
-			using NodeType		= MapNode<KeyType, MappedType>;
-			using PtrType		= NodeType*;
-			using ConstPtrType	= const NodeType*;
-			using RefType		= ValueType&;
-			using ConstRefType	= const ValueType&;
+			using KeyType = Key;
+			using MappedType = Value;
+			using ValueType = MC::Utility::Pair<const KeyType, MappedType>;
+			using NodeType = MapNode<KeyType, MappedType>;
+			using PtrType = NodeType*;
+			using ConstPtrType = const NodeType*;
+			using RefType = ValueType&;
+			using ConstRefType = const ValueType&;
 
 		public:
-			using HasherType		= Hasher<KeyType>;
-			using NodeAllocator		= Allocator<NodeType>;
-			using BucketAllocator	= Allocator<NodeType*>;
-	    };
+			using HasherType = Hasher<KeyType>;
+			using NodeAllocator = Allocator<NodeType>;
+			using BucketAllocator = Allocator<NodeType*>;
+		};
 	}
-
 	namespace Concept
 	{
 		/**
@@ -178,9 +177,9 @@ namespace MC
 			IsDefaultConstructible<Key> && IsDefaultConstructible<Value> &&
 			IsNothrowCopyConstructible<Key> && IsNothrowCopyConstructible<Value> &&
 			IsNothrowMoveConstructible<Key> && IsNothrowMoveConstructible<Value> &&
-			Concept::HasherType<typename MC::Helper::UnorderedMapTraits<Key, Value, Hasher, Allocator>::HasherType>&&
-			Concept::HeapAllocatorType<typename MC::Helper::UnorderedMapTraits<Key, Value, Hasher, Allocator>::NodeAllocator>&&
-			Concept::HeapAllocatorType<typename MC::Helper::UnorderedMapTraits<Key, Value, Hasher, Allocator>::BucketAllocator>;
+			Concept::HasherType<typename MC::Details::UnorderedMapTraits<Key, Value, Hasher, Allocator>::HasherType>&&
+			Concept::HeapAllocatorType<typename MC::Details::UnorderedMapTraits<Key, Value, Hasher, Allocator>::NodeAllocator>&&
+			Concept::HeapAllocatorType<typename MC::Details::UnorderedMapTraits<Key, Value, Hasher, Allocator>::BucketAllocator>;
 	}
 
 	/**
@@ -213,7 +212,7 @@ namespace MC
 		requires Concept::TemplateArgumentsEligibleForUnorderedMap<Key, Value, Hasher, Allocator>
     class UnorderedMap
 	{
-	    using Traits = Helper::UnorderedMapTraits<Key, Value, Hasher, Allocator>;
+	    using Traits = Details::UnorderedMapTraits<Key, Value, Hasher, Allocator>;
 
 	public:
 	    using KeyType	   = typename Traits::KeyType;         ///< Key type.
@@ -231,8 +230,8 @@ namespace MC
 		using BucketAllocator = typename Traits::BucketAllocator; ///< Bucket array allocator type.
 		
 	public:
-		using Iterator      = UMapIterator<UnorderedMap, false>; ///< Forward iterator.
-		using ConstIterator = UMapIterator<UnorderedMap, true>;  ///< Const forward iterator.
+		using Iterator      = Details::UMapIterator<UnorderedMap, false>; ///< Forward iterator.
+		using ConstIterator = Details::UMapIterator<UnorderedMap, true>;  ///< Const forward iterator.
 
 	public:
 		static constexpr usize REHASH_MULTIPLIER = 2;          ///< Bucket array growth factor.
@@ -709,7 +708,7 @@ namespace MC
 	template<typename Value, template<typename> class Hasher, template<typename> class Allocator>
 	class UnorderedMap<MC::String, Value, Hasher, Allocator>
 	{
-		using Traits = Helper::UnorderedMapTraits<MC::String, Value, Hasher, Allocator>;
+		using Traits = Details::UnorderedMapTraits<MC::String, Value, Hasher, Allocator>;
 
 	public:
 		using KeyType	   = typename Traits::KeyType;
@@ -727,8 +726,8 @@ namespace MC
 		using BucketAllocator = typename Traits::BucketAllocator;
 
 	public:
-		using Iterator      = UMapIterator<UnorderedMap, false>;
-		using ConstIterator = UMapIterator<UnorderedMap, true>;
+		using Iterator      = Details::UMapIterator<UnorderedMap, false>;
+		using ConstIterator = Details::UMapIterator<UnorderedMap, true>;
 
 	public:
 		static constexpr usize REHASH_MULTIPLIER = 2;

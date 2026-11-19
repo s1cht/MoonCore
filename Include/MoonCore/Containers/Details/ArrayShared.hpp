@@ -8,7 +8,7 @@
  * @ingroup seq_containers
  */
 
-namespace MC
+namespace MC::Details
 {
 	/**
 	 * @brief Converts a compile-time value or scoped enum to an array size.
