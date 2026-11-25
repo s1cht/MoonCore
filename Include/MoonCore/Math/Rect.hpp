@@ -48,7 +48,7 @@ namespace MC::Math
 
 	struct Rect2D
 	{
-		Resolution2D<u32> Offset;
+		Resolution2D<i32> Offset;
 		Resolution2D<u32> Extent;
 	};
 }
