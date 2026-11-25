@@ -1,7 +1,7 @@
 #pragma once
-#include "Core.hpp"
-#include "Utility/Debug.hpp"
-#include "Binder.hpp"
+#include "MoonCore/Core.hpp"
+#include "MoonCore/Utility/Debug.hpp"
+#include "MoonCore/Callables/Binder.hpp"
 
 namespace MC::Callables
 {

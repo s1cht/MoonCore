@@ -22,6 +22,25 @@ namespace MC
 	 */
 	inline constexpr usize DynamicExtent = NumericLimit<usize>::Max;
 
+	namespace Concept
+	{
+		template<typename Iterator>
+	    concept SpanIterator = Moveable<Iterator> && requires (Iterator it, usize n)
+	    {
+			{ it - it } -> ConvertibleTo<usize>;
+			{ ++it } -> SameAs<Iterator&>;
+			it++;
+			{ *it } -> CanReference;
+			{ it[n] };
+			{ it + n }  -> SameAs<Iterator>;
+			{ it - n }  -> SameAs<Iterator>;
+			{ it += n } -> SameAs<Iterator&>;
+			{ it -= n } -> SameAs<Iterator&>;
+			{ it < it } -> ConvertibleTo<bool>;
+			{ it > it } -> ConvertibleTo<bool>;
+		};
+	}
+
     namespace Details
     {
 		/**
@@ -148,7 +167,7 @@ namespace MC
 		 * @param count Number of elements to view. Must equal `Extent` for a static-extent span.
 		 * @note Explicit for static-extent spans.
 		 */
-		template<Concept::OutputIteratorType It>
+		template<Concept::SpanIterator It>
         constexpr explicit(Extent != DynamicExtent) SpanImpl(It first, usize count) noexcept
 			: Base(Details::UnwrapIterator<T>(first), count)
 		{
@@ -164,7 +183,7 @@ namespace MC
 		 * @param last  Iterator one past the last element.
 		 * @note `last - first` must equal `Extent` for a static-extent span. Explicit for static-extent spans.
 		 */
-		template<Concept::OutputIteratorType FirstIt, Concept::OutputIteratorType LastIt>
+		template<Concept::SpanIterator FirstIt, Concept::SpanIterator LastIt>
 		constexpr explicit(Extent != DynamicExtent) SpanImpl(FirstIt first, LastIt last) noexcept(noexcept(last - first))
 			: Base(Details::UnwrapIterator<T>(first), Details::UnwrapIterator<T>(last) - Details::UnwrapIterator<T>(first))
 		{
