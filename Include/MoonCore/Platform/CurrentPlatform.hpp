@@ -1,6 +1,16 @@
 #pragma once
 #include "MoonCore/Types.hpp"
 
+#if defined (COMPILER_MSVC)
+#   include <intrin.h>
+#else
+#   if defined(ARCHITECTURE_X64)
+#      include <intrin_x86_64.h>
+#   else
+#      error Unsupported architecture
+#   endif
+#endif
+
 namespace MC
 {
     enum class Platform : u8

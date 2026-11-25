@@ -4,6 +4,8 @@
 #include "MoonCore/Macros.hpp"
 #include "MoonCore/TypeTraits.hpp"
 #include "MoonCore/Concept.hpp"
+#include "MoonCore/Utility/Int128.hpp"
+
 #include <stdlib.h>
 #include <string.h>
 
