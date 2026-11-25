@@ -46,7 +46,8 @@ namespace MC::Memory
 
     void FreeListAllocator::Resize(usize newMaxSize) noexcept
     {
-        return;
+        m_FreeIndexCount = newMaxSize;
+        AddNewBlock(m_FreeListBySize.Size(), newMaxSize - m_FreeListBySize.Size());
     }
 
     void FreeListAllocator::AddNewBlock(usize offset, usize indexCount) noexcept
