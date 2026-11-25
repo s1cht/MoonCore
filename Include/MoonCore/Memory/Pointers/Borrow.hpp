@@ -83,6 +83,13 @@ namespace MC::Memory
         template <typename U> constexpr Borrow& operator=(Scope<U>&& other) noexcept = delete;
         template <typename U> constexpr Borrow& operator=(Memory::Reference<U>&& other) noexcept = delete;
 
+        template <typename U> 
+            requires Concept::ConvertibleTo<U*, Pointer>
+        constexpr bool operator==(U* other) const noexcept { return m_Ptr == other; }
+        template <typename U> 
+            requires Concept::ConvertibleTo<U*, Pointer>
+        constexpr bool operator==(const Borrow<U>& other) const noexcept { return m_Ptr == other.m_Ptr; }
+
     public:
         constexpr Pointer Release() noexcept
         {
