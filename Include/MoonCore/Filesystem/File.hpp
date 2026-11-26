@@ -1,7 +1,8 @@
 #pragma once
-#include "Core.hpp"
-#include "Clock/Time.hpp"
-#include "Containers/String.hpp"
+#include "MoonCore/Core.hpp"
+#include "MoonCore/Clock/Time.hpp"
+#include "MoonCore/Containers/String.hpp"
+#include "MoonCore/Memory/Byte.hpp"
 
 namespace MC::Filesystem
 {
@@ -49,7 +50,7 @@ namespace MC::Filesystem
             virtual ~FileBase() noexcept = default;
 
             virtual bool Read(MC::String& output, Enums::WordReadMode readMode, const StringView& symbols = TEXT("")) noexcept = 0;
-            virtual bool Read(void* data, usize size) noexcept = 0;
+            virtual bool Read(Memory::ByteSpan& data) noexcept = 0;
 
             virtual bool Write(char8 character) noexcept = 0;
             virtual bool Write(const MC::StringView& str) noexcept = 0;
@@ -79,10 +80,12 @@ namespace MC::Filesystem
         explicit File(const MC::StringView& path, 
             Enums::ReadMode readMode = Enums::ReadMode::ReadAndWrite) noexcept;
         File(const File&) = delete;
+        File(File&&) noexcept = default;
         ~File() noexcept = default;
 
     public:
         File& operator=(const File&) = delete;
+        File& operator=(File&&) noexcept = default;
 
     public:
         bool Open(const MC::StringView& path, 
@@ -96,7 +99,8 @@ namespace MC::Filesystem
         bool Read(MC::String& output, 
             Enums::WordReadMode readMode = Enums::WordReadMode::Word,
             const StringView& symbols = "\n") const noexcept;
-        
+        bool Read(MC::Memory::ByteSpan& data) const noexcept;
+
         bool Write(char8 character) const noexcept;
         bool Write(const MC::StringView& output) const noexcept;
         bool Write(const void * const input, usize size) const noexcept;

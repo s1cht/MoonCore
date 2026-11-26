@@ -41,6 +41,12 @@ namespace MC::Filesystem
         return m_File->Read(output, readMode, symbols);
     }
 
+    bool File::Read(MC::Memory::ByteSpan& data) const noexcept
+    {
+        if (!m_File) return false;
+        return m_File->Read(data);
+    }
+
     bool File::Write(char8 character) const noexcept
     {
         if (!m_File) return false;

@@ -45,7 +45,8 @@ namespace MC::Windows::Filesystem
 		    usize size = m_FileInfo.Size;
 		    output.Resize(size);
 
-            bool result = Read(output.String(), size);
+            Memory::ByteSpan buffer(output);
+            bool result = Read(buffer);
             Seek(lastPos);
             return result;
         }
@@ -98,22 +99,22 @@ namespace MC::Windows::Filesystem
 		return !output.Empty();
     }
 
-    bool WindowsFile::Read(void* data, usize size) noexcept
+    bool WindowsFile::Read(Memory::ByteSpan& data) noexcept
     {
         DWORD bytesRead;
 
-        if (!ReadFile(m_File, data, static_cast<DWORD>(size), &bytesRead, nullptr))
+        if (!ReadFile(m_File, data.Data(), data.Size(), &bytesRead, nullptr))
         {
-            Logging::Logger::Error(Logging::Logger::Module::Core,
+            Logging::Logger::Debug(Logging::Logger::Module::Core, Logger::Severity::Warn,
                 "Failed to read binary data from file! Win32 error: {:#18x}", static_cast<u32>(GetLastError()));
             m_LastError = Enums::OperationError::ReadFileFailed;
             return false;
         }
 
-        if (bytesRead != size)
+        if (bytesRead != data.Size())
         {
-            Logging::Logger::Warn(Logging::Logger::Module::Core,
-                "Partially read the file! Requested size: {:d}, got from file: {:d}", size, bytesRead);
+            Logging::Logger::Debug(Logging::Logger::Module::Core, Logger::Severity::Warn,
+                "Partially read the file! Requested size: {:d}, got from file: {:d}", data.Size(), bytesRead);
             m_LastError = Enums::OperationError::PartialRead;
             m_EndOfFile = true;
             return false;

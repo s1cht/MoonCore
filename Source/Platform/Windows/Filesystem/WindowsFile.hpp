@@ -16,7 +16,7 @@ namespace MC::Windows::Filesystem
         bool Read(MC::String& output, 
             MC::Filesystem::Enums::WordReadMode readMode,
             const StringView& symbols) noexcept override;
-        bool Read(void* data, usize size) noexcept override;
+        bool Read(Memory::ByteSpan& data) noexcept override;
         
         bool Write(char8 character) noexcept override;
         bool Write(const MC::StringView& str) noexcept override;
