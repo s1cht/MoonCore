@@ -292,5 +292,5 @@ namespace MC
 	 * @tparam ArraySize Capacity as an integer or scoped enum with `Count`.
 	 */
 	template<typename T, auto ArraySize>
-	using FixedArray = FixedArrayImpl<T, ToArraySize<ArraySize>()>;
+	using FixedArray = FixedArrayImpl<T, Details::ToArraySize<ArraySize>()>;
 }
