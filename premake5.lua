@@ -17,6 +17,14 @@ if (outputInterDirectory ~= nil) then localBinIntLocation = outputInterDirectory
 
 MOON_CORE_OUTPUT_DIR = localBinLocation
 
+local g = premake.api.scope.group
+local name = g and g.name or ""
+
+project "*"
+    group "Dependencies"
+        include "Dependencies/xxHash"
+    group (name)
+
 project "Core"
     language "C++"
     cppdialect "C++23"
@@ -111,6 +119,3 @@ project "Core"
         filter "configurations:Release"
             defines  "MC_RELEASE"
         filter {}
-
-    group "Dependencies"
-        include "Dependencies/xxHash"
